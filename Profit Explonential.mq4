@@ -161,6 +161,7 @@ void InitSymbols(){
       Arr_Hedge_Order_Lot[i]     = 0;
       Arr_Main_Order_Profit[i]   = 0;
       Arr_Hedge_Order_Profit[i]  = 0;
+      Arr_Hedge_Order_Space[i]   = 99999999;
    }
 }
 
@@ -292,7 +293,13 @@ void Rebind(){
  
    for(int i = 0; i < Size_Group;i++){    
       string Symbols_FIRST = Arr_Symbols_FIRST[i];
-      string Symbols_SECOND = Arr_Symbols_SECOND[i];      
+      string Symbols_SECOND = Arr_Symbols_SECOND[i];    
+      Arr_Main_Order_Lot[i] = 0;  
+      Arr_Main_Order_Profit[i] = 0;
+      Arr_Hedge_Order_Lot[i] = 0;
+      Arr_Hedge_Order_Profit[i] = 0;
+      Arr_Main_Order_Total[i] = 0;
+      Arr_Hedge_Order_Total[i] = 0;
       for (int n = 0; n < OrdersTotal(); n++)
       {
          if (OrderSelect(n, SELECT_BY_POS) == true)
@@ -305,23 +312,29 @@ void Rebind(){
                Main_Space = (int)arr_Info[3];
                if(Main_Space > Arr_Main_Order_Space[i]){
                   Arr_Main_Order_Space[i] = Main_Space;
+               }
                   Arr_Main_Order_Total[i]++;
                   Arr_Main_Order_Lot[i] += OrderLots();
                   Arr_Main_Order_Profit[i] += (OrderProfit() + OrderSwap() + OrderCommission()); 
-               } 
+               
             }
             
             if(Symbols_FIRST == arr_Info[0] && Symbols_SECOND == arr_Info[1] && arr_Info[2] == "H"){
                Hedge_Space = (int)arr_Info[3];
                if(Hedge_Space < Arr_Hedge_Order_Space[i]){
-                  Arr_Hedge_Order_Space[i] = Hedge_Space;
+                  Arr_Hedge_Order_Space[i] = Hedge_Space; 
+               }
                   Arr_Hedge_Order_Total[i]++;
                   Arr_Hedge_Order_Lot[i] += OrderLots();
                   Arr_Hedge_Order_Profit[i] += (OrderProfit() + OrderSwap() + OrderCommission()); 
-               } 
+               
             }
          }
       }
+      Arr_Main_Order_Lot[i] = Arr_Main_Order_Lot[i]/2;
+      Arr_Hedge_Order_Lot[i] = Arr_Hedge_Order_Lot[i]/2;
+      Arr_Main_Order_Total[i] = Arr_Main_Order_Total[i]/2;
+      Arr_Hedge_Order_Total[i] = Arr_Hedge_Order_Total[i]/2;
    }
 }
   

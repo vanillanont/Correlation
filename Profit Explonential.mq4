@@ -25,6 +25,8 @@ string Arr_Group_ReadyPosition[];
 int Arr_Group_Space[];
 int Arr_Main_Order_Space[];
 int Arr_Hedge_Order_Space[];
+int Arr_Main_Order_Space_Of_Space[];
+int Arr_Hedge_Order_Space_Of_Space[];
 int Arr_Main_Order_Total[];
 int Arr_Hedge_Order_Total[];
 double Arr_Main_Order_Lot[];
@@ -79,6 +81,8 @@ void OnTick()
       string Symbols_FIRST = Arr_Symbols_FIRST[i];
       string Symbols_SECOND = Arr_Symbols_SECOND[i];
       string Symbols_THIRD = Arr_Symbols_THIRD[i];
+      Arr_Main_Order_Space_Of_Space[i] = Arr_Main_Order_Space[i] == 0 ? 0 : (Arr_Main_Order_Space[i]-Arr_Group_Space[i]);
+      Arr_Hedge_Order_Space_Of_Space[i] = Arr_Hedge_Order_Space[i] == 99999999 ? 0 : (Arr_Group_Space[i]-Arr_Hedge_Order_Space[i]); 
       if(Arr_Main_Order_Total[i] == 0){
         if(Group_ReadyPosition == "M"){
             Util_OpenOrder(Symbols_FIRST,OP_SELL,Lot,Symbols_FIRST+"_"+Symbols_SECOND+"_"+Group_ReadyPosition+"_"+Group_Space);
@@ -86,7 +90,7 @@ void OnTick()
          }
       }else{
          if(Total_Allow_Resolve >Arr_Main_Order_Total[i]){
-            int Order_Space = MathAbs(Arr_Group_Space[i]-Arr_Main_Order_Space[i]);
+            int Order_Space = Arr_Main_Order_Space_Of_Space[i];
             if(Order_Space > 1000){
                // 3 symbols confirm macd,sto,and others...
                bool isNextOpen = Arr_Main_IsOpenCondition[i];
@@ -106,7 +110,7 @@ void OnTick()
          }
       }else{
          if(Total_Allow_Resolve >Arr_Hedge_Order_Total[i]){
-            int Order_Space = MathAbs(Arr_Group_Space[i]-Arr_Hedge_Order_Space[i]);
+            int Order_Space = Arr_Hedge_Order_Space_Of_Space[i];
             if(Order_Space > 1000){
                // 3 symbols confirm macd,sto,and others...
                bool isNextOpen = Arr_Hedge_IsOpenCondition[i];
@@ -152,6 +156,8 @@ void InitSymbols(){
    ArrayResize(Arr_Group_Space,Size_Group); 
    ArrayResize(Arr_Main_Order_Space,Size_Group); 
    ArrayResize(Arr_Hedge_Order_Space,Size_Group); 
+   ArrayResize(Arr_Main_Order_Space_Of_Space,Size_Group); 
+   ArrayResize(Arr_Hedge_Order_Space_Of_Space,Size_Group); 
    ArrayResize(Arr_Main_Order_Total,Size_Group); 
    ArrayResize(Arr_Hedge_Order_Total,Size_Group); 
    ArrayResize(Arr_Main_Order_Lot,Size_Group); 
@@ -242,7 +248,7 @@ void GenInterface()
       string symbol_second = Arr_Symbols_SECOND[i];
       string symbol_third = Arr_Symbols_THIRD[i];  
       string Group_ReadyPosition = Arr_Group_ReadyPosition[i];  
-      string Group_Space = (string)Arr_Group_Space[i];  
+      string Group_Space = (string)Arr_Group_Space[i];  //(string)Arr_Hedge_Order_Space[i];//(string)Arr_Group_Space[i];  
       string Main_Order_Profit = DoubleToString(Arr_Main_Order_Profit[i],2);  
       string Hedge_Order_Profit = DoubleToString(Arr_Hedge_Order_Profit[i],2); 
       string Main_Order_Lot = DoubleToString(Arr_Main_Order_Lot[i],2);  
@@ -251,8 +257,9 @@ void GenInterface()
       string Hedge_Order_Total = (string)Arr_Hedge_Order_Total[i];  
       string Total_Order_Profit = DoubleToString(Arr_Main_Order_Profit[i]+Arr_Hedge_Order_Profit[i],2);
       string Total_Order_Lot = DoubleToString(Arr_Main_Order_Lot[i]+Arr_Hedge_Order_Lot[i],2);
-      string Total_Order_Total = (string)(Arr_Main_Order_Total[i]+Arr_Hedge_Order_Total[i]);
-      
+      string Total_Order_Total = (string)(Arr_Main_Order_Total[i]+Arr_Hedge_Order_Total[i]); 
+      int Order_MainSpace = Arr_Main_Order_Space_Of_Space[i];
+      int Order_HedgeSpace = Arr_Hedge_Order_Space_Of_Space[i];
       color Clr_First = Arr_Symbols_FIRST_DIRECTION[i] == OP_BUY ? clrBlue : clrRed;
       color Clr_Second = Arr_Symbols_SECOND_DIRECTION[i] == OP_BUY ? clrBlue : clrRed;
       color Clr_Third = Arr_Symbols_THIRD_DIRECTION[i] == OP_BUY ? clrBlue : clrRed;
@@ -282,9 +289,9 @@ void GenInterface()
          Util_LabelCreate(0,lbl_Direction,0,215,y,CORNER_LEFT_UPPER,Group_ReadyPosition,"Arial",9,clrWhite,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Space,0,280,y,CORNER_LEFT_UPPER,Group_Space,"Arial",9,clrWhite,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Main_Profit,0,380,y,CORNER_LEFT_UPPER,Main_Order_Profit,"Arial",9,clrGreen,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
-         Util_LabelCreate(0,lbl_Main_Lot,0,460,y,CORNER_LEFT_UPPER,Main_Order_Lot+" / "+Main_Order_Total,"Arial",9,clrGreen,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
+         Util_LabelCreate(0,lbl_Main_Lot,0,460,y,CORNER_LEFT_UPPER,Main_Order_Lot+" / "+Main_Order_Total+" ("+IntegerToString(Order_MainSpace)+")","Arial",9,clrGreen,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Hedge_Profit,0,583,y,CORNER_LEFT_UPPER,Hedge_Order_Profit,"Arial",9,clrYellow,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
-         Util_LabelCreate(0,lbl_Hedge_Lot,0,666,y,CORNER_LEFT_UPPER,Hedge_Order_Lot+" / "+Hedge_Order_Total,"Arial",9,clrYellow,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
+         Util_LabelCreate(0,lbl_Hedge_Lot,0,666,y,CORNER_LEFT_UPPER,Hedge_Order_Lot+" / "+Hedge_Order_Total+" ("+IntegerToString(Order_HedgeSpace)+")","Arial",9,clrYellow,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Total_Profit,0,788,y,CORNER_LEFT_UPPER,Total_Order_Profit,"Arial",9,clrAqua,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Total_Lot,0,870,y,CORNER_LEFT_UPPER,Total_Order_Lot+" / "+Total_Order_Total,"Arial",9,clrAqua,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
         
@@ -296,9 +303,9 @@ void GenInterface()
          ObjectSetString(0,lbl_Direction,OBJPROP_TEXT,Group_ReadyPosition);
          ObjectSetString(0,lbl_Space,OBJPROP_TEXT,Group_Space);
          ObjectSetString(0,lbl_Main_Profit,OBJPROP_TEXT,Main_Order_Profit);
-         ObjectSetString(0,lbl_Main_Lot,OBJPROP_TEXT,Main_Order_Lot+" / "+Main_Order_Total); 
+         ObjectSetString(0,lbl_Main_Lot,OBJPROP_TEXT,Main_Order_Lot+" / "+Main_Order_Total+" ("+IntegerToString(Order_MainSpace)+")"); 
          ObjectSetString(0,lbl_Hedge_Profit,OBJPROP_TEXT,Hedge_Order_Profit);
-         ObjectSetString(0,lbl_Hedge_Lot,OBJPROP_TEXT,Hedge_Order_Lot+" / "+Hedge_Order_Total); 
+         ObjectSetString(0,lbl_Hedge_Lot,OBJPROP_TEXT,Hedge_Order_Lot+" / "+Hedge_Order_Total+" ("+IntegerToString(Order_HedgeSpace)+")"); 
          ObjectSetString(0,lbl_Total_Profit,OBJPROP_TEXT,Total_Order_Profit);
          ObjectSetString(0,lbl_Total_Lot,OBJPROP_TEXT,Total_Order_Lot+" / "+Total_Order_Total); 
       }
@@ -330,7 +337,9 @@ void Rebind(){
       Arr_Main_IsOpenCondition[i] = false; 
       Arr_Hedge_IsOpenCondition[i] = false;  
       Arr_Main_Order_Space[i] = 0;
-      Arr_Hedge_Order_Space[i] = 999999999;
+      Arr_Hedge_Order_Space[i] = 99999999;
+      //Arr_Main_Order_Space_Of_Space[i] = 0;
+      //Arr_Hedge_Order_Space_Of_Space[i] = 0;
       for (int n = 0; n < OrdersTotal(); n++)
       {
          if (OrderSelect(n, SELECT_BY_POS) == true)
@@ -361,8 +370,7 @@ void Rebind(){
                }
                   Arr_Hedge_Order_Total[i]++;
                   Arr_Hedge_Order_Lot[i] += OrderLots();
-                  Arr_Hedge_Order_Profit[i] += (OrderProfit() + OrderSwap() + OrderCommission()); 
-               
+                  Arr_Hedge_Order_Profit[i] += (OrderProfit() + OrderSwap() + OrderCommission());  
             }
          }
          
@@ -451,7 +459,7 @@ int GetSpace(string SYMBOL_MAIN,string SYMBOL_HEDGE,int candle_number,int period
            Lot_Size = 0.01;
        }    
        Tp_Size = Lot_Size * 100; 
-       Loss_Acceptable = (AccountBalance()/Size_Group)/2;
+       Loss_Acceptable = (AccountBalance()/Size_Group);
    }
    
    bool isOpenNext(string _SymbolMain,string _SymbolHedge,string _SymbolCheck,string type)
@@ -675,37 +683,41 @@ int GetSpace(string SYMBOL_MAIN,string SYMBOL_HEDGE,int candle_number,int period
          string Symbols_THIRD = Arr_Symbols_THIRD[i];
          if(Current_Main_Profit > Tp_Main_Profit)
          {
-            if(Current_Hedge_Profit < Loss_Acceptable){
+            //if(Current_Hedge_Profit < Loss_Acceptable){
                // clearOrders
                Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"M",Arr_Ticket_Pending_Close);
-            }else{
-               int Order_Space = MathAbs(Arr_Group_Space[i]-Arr_Main_Order_Space[i]);
-               if(Order_Space > 1000){ 
-                  bool isNextOpen = Arr_Main_IsOpenCondition[i];
-                  if(isNextOpen){
+            //}else{
+            //   int Order_Space = Arr_Hedge_Order_Space[i] == 0 ? 0 : MathAbs(Arr_Group_Space[i]-Arr_Hedge_Order_Space[i]);
+            //   if(Order_Space > 1000){ 
+            //      bool isNextOpen = Arr_Hedge_IsOpenCondition[i];
+            //      if(isNextOpen){
                      // clearOrders
-                     Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"M",Arr_Ticket_Pending_Close);
-                  }
-               }
-            }
+            //         Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"M",Arr_Ticket_Pending_Close);
+            //      }
+            //   }else{
+            //      Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"M",Arr_Ticket_Pending_Close);
+            //   }
+            //}
            
          }
          
          if(Current_Hedge_Profit > Tp_Hedge_Profit)
          {
-            if(Current_Main_Profit < Loss_Acceptable){
+            //if(Current_Main_Profit < Loss_Acceptable){
                // clearOrders 
                Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"H",Arr_Ticket_Pending_Close);
-            }else{
-               int Order_Space = MathAbs(Arr_Group_Space[i]-Arr_Hedge_Order_Space[i]);
-               if(Order_Space > 1000){ 
-                  bool isNextOpen = Arr_Hedge_IsOpenCondition[i];
-                  if(isNextOpen){
+            //}else{
+            //   int Order_Space = Arr_Main_Order_Space[i] == 0 ? 0 : MathAbs(Arr_Group_Space[i]-Arr_Main_Order_Space[i]);
+            //   if(Order_Space > 1000){ 
+            //      bool isNextOpen = Arr_Main_IsOpenCondition[i];
+            //      if(isNextOpen){
                      // clearOrders
-                     Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"H",Arr_Ticket_Pending_Close);
-                  }
-               }
-            }
+            //         Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"H",Arr_Ticket_Pending_Close);
+            //      }
+            //   }else{
+            //      Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"H",Arr_Ticket_Pending_Close);
+            //   }
+            //}
          }
       }
    } 

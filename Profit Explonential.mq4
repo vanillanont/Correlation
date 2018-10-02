@@ -119,8 +119,8 @@ void OnTick()
          } 
       } 
    }
-   Rebind();  
    ClearOrders(); 
+   Rebind();  
    GenInterface();
 }
 //+------------------------------------------------------------------+
@@ -329,6 +329,8 @@ void Rebind(){
       Arr_Hedge_Order_Total[i] = 0; 
       Arr_Main_IsOpenCondition[i] = false; 
       Arr_Hedge_IsOpenCondition[i] = false;  
+      Arr_Main_Order_Space[i] = 0;
+      Arr_Hedge_Order_Space[i] = 999999999;
       for (int n = 0; n < OrdersTotal(); n++)
       {
          if (OrderSelect(n, SELECT_BY_POS) == true)
@@ -339,7 +341,7 @@ void Rebind(){
             int Hedge_Space = 0;
             if(Symbols_FIRST == arr_Info[0] && Symbols_SECOND == arr_Info[1] && arr_Info[2] == "M"){
                Main_Space = (int)arr_Info[3];
-               if(Main_Space > Arr_Main_Order_Space[i]){
+               if(Main_Space >= Arr_Main_Order_Space[i]){
                   Arr_Main_Order_Space[i] = Main_Space;
                   Arr_Main_Order_Latest_Lot[i] = OrderLots();
                   Arr_Main_Order_Latest_Profit[i] = (OrderProfit() + OrderSwap() + OrderCommission()); 
@@ -352,10 +354,10 @@ void Rebind(){
             
             if(Symbols_FIRST == arr_Info[0] && Symbols_SECOND == arr_Info[1] && arr_Info[2] == "H"){
                Hedge_Space = (int)arr_Info[3];
-               if(Hedge_Space < Arr_Hedge_Order_Space[i]){
+               if(Hedge_Space <= Arr_Hedge_Order_Space[i]){
                   Arr_Hedge_Order_Space[i] = Hedge_Space; 
                   Arr_Hedge_Order_Latest_Lot[i] = OrderLots();
-                  Arr_Hedge_Order_Latest_Profit[i] += (OrderProfit() + OrderSwap() + OrderCommission()); 
+                  Arr_Hedge_Order_Latest_Profit[i] = (OrderProfit() + OrderSwap() + OrderCommission()); 
                }
                   Arr_Hedge_Order_Total[i]++;
                   Arr_Hedge_Order_Lot[i] += OrderLots();
@@ -665,8 +667,8 @@ int GetSpace(string SYMBOL_MAIN,string SYMBOL_HEDGE,int candle_number,int period
       {
          double Tp_Main_Profit = (Arr_Main_Order_Latest_Lot[i]*100)*2;
          double Tp_Hedge_Profit = (Arr_Hedge_Order_Latest_Lot[i]*100)*2;
-         double Current_Main_Profit = Arr_Main_Order_Latest_Profit[i];
-         double Current_Hedge_Profit = Arr_Hedge_Order_Latest_Profit[i];
+         double Current_Main_Profit = Arr_Main_Order_Profit[i];
+         double Current_Hedge_Profit = Arr_Hedge_Order_Profit[i];
             
          string Symbols_FIRST = Arr_Symbols_FIRST[i];
          string Symbols_SECOND = Arr_Symbols_SECOND[i];

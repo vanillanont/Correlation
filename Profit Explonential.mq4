@@ -345,7 +345,8 @@ void Rebind(){
          if (OrderSelect(n, SELECT_BY_POS) == true)
          {  
             string arr_Info[];
-            Util_Split(OrderComment(),"_",arr_Info);
+            //Util_Split(OrderComment(),"_",arr_Info);
+            Util_Split(CustomOrderComment(),"_",arr_Info);
             int Main_Space = 0;
             int Hedge_Space = 0;
             if(Symbols_FIRST == arr_Info[0] && Symbols_SECOND == arr_Info[1] && arr_Info[2] == "M"){
@@ -721,6 +722,48 @@ int GetSpace(string SYMBOL_MAIN,string SYMBOL_HEDGE,int candle_number,int period
          }
       }
    } 
+   
+   
+   //temp
+      string CustomOrderComment(){
+          int ticket = OrderTicket();
+          
+          
+          if(ticket == 28626400){ return "GBPNZD_EURNZD_M_20755";}
+          if(ticket == 28626401){ return "GBPNZD_EURNZD_M_20755";}
+          if(ticket == 28763095){ return "GBPNZD_EURNZD_H_21411";}
+          if(ticket == 28763099){ return "GBPNZD_EURNZD_H_21411";} //2
+          if(ticket == 28635593){ return "EURNZD_EURGBP_H_87725";}
+          if(ticket == 28635594){ return "EURNZD_EURGBP_H_87725";} //1
+          
+          
+          if(ticket == 28594836){ return "GBPNZD_EURGBP_M_107053";}
+          if(ticket == 28594837){ return "GBPNZD_EURGBP_M_107053";}
+          if(ticket == 28650890){ return "GBPNZD_EURGBP_M_108402";}
+          if(ticket == 28650891){ return "GBPNZD_EURGBP_M_108402";}
+          if(ticket == 28763244){ return "GBPNZD_EURGBP_H_107959";}
+          if(ticket == 28763249){ return "GBPNZD_EURGBP_H_107959";} // 3
+           
+          if(ticket == 28696801){ return "AUDCAD_AUDUSD_H_22154";}
+          if(ticket == 28696803){ return "AUDCAD_AUDUSD_H_22154";}
+          if(ticket == 28755591){ return "AUDCAD_AUDUSD_M_20277";}
+          if(ticket == 28755592){ return "AUDCAD_AUDUSD_M_20277";} // 2
+           
+          if(ticket == 28696865){ return "USDCAD_AUDUSD_H_58444";}
+          if(ticket == 28696868){ return "USDCAD_AUDUSD_H_58444";}
+          if(ticket == 28773643){ return "USDCAD_AUDUSD_M_55587";}
+          if(ticket == 28773644){ return "USDCAD_AUDUSD_M_55587";} //2
+          
+          if(ticket == 28705648){ return "USDCAD_AUDCAD_H_36472";}
+          if(ticket == 28705649){ return "USDCAD_AUDCAD_H_36472";}
+          if(ticket == 28773862){ return "USDCAD_AUDCAD_M_35437";}
+          if(ticket == 28773863){ return "USDCAD_AUDCAD_M_35437";}
+          return OrderComment(); 
+      }
+   
+   //temp
+   
+   
 
 //////// UTILITIES ///////////
 
@@ -820,8 +863,10 @@ void Util_Split(string text,string split,string & result[]){
 
 bool Util_isFocusedOrder(string SYMBOL_MAIN,string SYMBOL_HEDGE,string TYPE){
    //OrderSelect needed before call this function
-   if(StringFind(OrderComment(),SYMBOL_MAIN,0) >= 0 && StringFind(OrderComment(),SYMBOL_HEDGE,0) >= 0){
-      if(StringFind(OrderComment(),TYPE,0) >= 0){
+   //if(StringFind(OrderComment(),SYMBOL_MAIN,0) >= 0 && StringFind(OrderComment(),SYMBOL_HEDGE,0) >= 0){
+   //   if(StringFind(OrderComment(),TYPE,0) >= 0){
+   if(StringFind(CustomOrderComment(),SYMBOL_MAIN,0) >= 0 && StringFind(CustomOrderComment(),SYMBOL_HEDGE,0) >= 0){
+      if(StringFind(CustomOrderComment(),TYPE,0) >= 0){
          return true;
       }else{
          return false;

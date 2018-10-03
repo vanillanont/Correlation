@@ -237,8 +237,8 @@ void GenInterface()
       Util_LabelCreate(0,lbl_Symbol_Second,0,85,20,CORNER_LEFT_UPPER,"HEDGE","Arial",9,clrDarkGray,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
       Util_LabelCreate(0,lbl_Symbol_Third,0,150,20,CORNER_LEFT_UPPER,"CHECK","Arial",9,clrDarkGray,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
       Util_LabelCreate(0,lbl_Space,0,240,20,CORNER_LEFT_UPPER,"SPACE","Arial",9,clrDarkGray,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
-      Util_LabelCreate(0,lbl_Main_Profit,0,300,20,CORNER_LEFT_UPPER,"MAIN : PROFIT    LOT/ORDER","Arial",9,clrGreen,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
-      Util_LabelCreate(0,lbl_Hedge_Profit,0,490,20,CORNER_LEFT_UPPER,"HEDGE : PROFIT    LOT/ORDER","Arial",9,clrYellow,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
+      Util_LabelCreate(0,lbl_Main_Profit,0,300,20,CORNER_LEFT_UPPER,"MAIN : PROFIT    LOT/SPACE","Arial",9,clrGreen,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
+      Util_LabelCreate(0,lbl_Hedge_Profit,0,490,20,CORNER_LEFT_UPPER,"HEDGE : PROFIT    LOT/SPACE","Arial",9,clrYellow,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
       Util_LabelCreate(0,lbl_Total_Profit,0,700,20,CORNER_LEFT_UPPER,"TOTAL : PROFIT    LOT/ORDER","Arial",9,clrAqua,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
 
    }
@@ -289,9 +289,9 @@ void GenInterface()
          Util_LabelCreate(0,lbl_Direction,0,215,y,CORNER_LEFT_UPPER,Group_ReadyPosition,"Arial",9,clrWhite,0,ANCHOR_LEFT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Space,0,280,y,CORNER_LEFT_UPPER,Group_Space,"Arial",9,clrWhite,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Main_Profit,0,380,y,CORNER_LEFT_UPPER,Main_Order_Profit,"Arial",9,clrGreen,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
-         Util_LabelCreate(0,lbl_Main_Lot,0,460,y,CORNER_LEFT_UPPER,Main_Order_Lot+" / "+Main_Order_Total+" ("+IntegerToString(Order_MainSpace)+")","Arial",9,clrGreen,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
+         Util_LabelCreate(0,lbl_Main_Lot,0,460,y,CORNER_LEFT_UPPER,Main_Order_Lot+" / "+IntegerToString(Order_MainSpace),"Arial",9,clrGreen,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Hedge_Profit,0,583,y,CORNER_LEFT_UPPER,Hedge_Order_Profit,"Arial",9,clrYellow,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
-         Util_LabelCreate(0,lbl_Hedge_Lot,0,666,y,CORNER_LEFT_UPPER,Hedge_Order_Lot+" / "+Hedge_Order_Total+" ("+IntegerToString(Order_HedgeSpace)+")","Arial",9,clrYellow,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
+         Util_LabelCreate(0,lbl_Hedge_Lot,0,666,y,CORNER_LEFT_UPPER,Hedge_Order_Lot+" / "+IntegerToString(Order_HedgeSpace),"Arial",9,clrYellow,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Total_Profit,0,788,y,CORNER_LEFT_UPPER,Total_Order_Profit,"Arial",9,clrAqua,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
          Util_LabelCreate(0,lbl_Total_Lot,0,870,y,CORNER_LEFT_UPPER,Total_Order_Lot+" / "+Total_Order_Total,"Arial",9,clrAqua,0,ANCHOR_RIGHT_UPPER,false,false,true,0); 
         
@@ -303,9 +303,12 @@ void GenInterface()
          ObjectSetString(0,lbl_Direction,OBJPROP_TEXT,Group_ReadyPosition);
          ObjectSetString(0,lbl_Space,OBJPROP_TEXT,Group_Space);
          ObjectSetString(0,lbl_Main_Profit,OBJPROP_TEXT,Main_Order_Profit);
-         ObjectSetString(0,lbl_Main_Lot,OBJPROP_TEXT,Main_Order_Lot+" / "+Main_Order_Total+" ("+IntegerToString(Order_MainSpace)+")"); 
+         ObjectSetString(0,lbl_Main_Lot,OBJPROP_TEXT,Main_Order_Lot+" / "+IntegerToString(Order_MainSpace)); 
+         ObjectSetString(0,lbl_Main_Lot,OBJPROP_TOOLTIP,(Main_Order_Total));  
+         
          ObjectSetString(0,lbl_Hedge_Profit,OBJPROP_TEXT,Hedge_Order_Profit);
-         ObjectSetString(0,lbl_Hedge_Lot,OBJPROP_TEXT,Hedge_Order_Lot+" / "+Hedge_Order_Total+" ("+IntegerToString(Order_HedgeSpace)+")"); 
+         ObjectSetString(0,lbl_Hedge_Lot,OBJPROP_TEXT,Hedge_Order_Lot+" / "+IntegerToString(Order_HedgeSpace)); 
+         ObjectSetString(0,lbl_Hedge_Lot,OBJPROP_TOOLTIP,Hedge_Order_Total);  
          ObjectSetString(0,lbl_Total_Profit,OBJPROP_TEXT,Total_Order_Profit);
          ObjectSetString(0,lbl_Total_Lot,OBJPROP_TEXT,Total_Order_Lot+" / "+Total_Order_Total); 
       }
@@ -700,6 +703,11 @@ int GetSpace(string SYMBOL_MAIN,string SYMBOL_HEDGE,int candle_number,int period
             //   }
             //}
            
+         }else{
+            if(Current_Main_Profit >= 0 && Arr_Hedge_IsOpenCondition[i] && Arr_Hedge_Order_Space_Of_Space[i] > 1000)
+            {
+               Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"M",Arr_Ticket_Pending_Close);
+            }
          }
          
          if(Current_Hedge_Profit > Tp_Hedge_Profit)
@@ -719,6 +727,11 @@ int GetSpace(string SYMBOL_MAIN,string SYMBOL_HEDGE,int candle_number,int period
             //      Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"H",Arr_Ticket_Pending_Close);
             //   }
             //}
+         }else{
+             if(Current_Hedge_Profit >= 0 && Arr_Main_IsOpenCondition[i] && Arr_Main_Order_Space_Of_Space[i] > 1000)
+             {
+               Util_ListTickets(Symbols_FIRST,Symbols_SECOND,"H",Arr_Ticket_Pending_Close);
+             }
          }
       }
    } 
